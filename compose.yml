@@ -1,0 +1,48 @@
+services:
+  compose-sample1:
+    container_name: compose-sample1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - app_data:/workspace/app
+    networks:
+      - compose-network1
+    command: tail -F /dev/null
+  compose-postgres:
+    image: postgres:14.13
+    container_name: compose-postgres
+    environment:
+      POSTGRES_USER: nkhs_pg_user
+      POSTGRES_PASSWORD: nkhs_pg_pass
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - compose-network1
+    restart: always
+  compose-pgadmin4:
+    image: dpage/pgadmin4:8.12
+    container_name: pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: nkhs_pgadmin_pass
+    ports:
+      - "19080:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - compose-network1
+    restart: always
+volumes:
+  app_data:
+  pg-data:
+    driver: local
+  pgadmin-data:
+    driver: local
+networks:
+  default:
+    external:
+      name: bridge
+  compose-network1:
+    name: compose-network1.nkhs
